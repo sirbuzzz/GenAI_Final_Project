@@ -199,6 +199,34 @@ The app extracts biomarkers, detects patient sex, validates name matches, genera
 | INSULIN, FASTING | 18.5 uIU/mL | 2–5 uIU/mL | Out of Range |
 | TRIGLYCERIDES | 285 mg/dL | 70–110 mg/dL | Out of Range |
 
+**Screenshots:**
+
+*App landing page — upload interface:*
+
+![App UI](Screenshots/APP_UI.png)
+
+*File uploaded and processing — extracting biomarkers from 2 pages:*
+
+![Generating Content](Screenshots/Genreating_Content.png)
+
+*Output — coach summary, status breakdown, and download button:*
+
+![Coach Summary](Screenshots/Coach%20Summary.png)
+
+*Match validation — uncertain matches expanded with judge reasoning:*
+
+![Match Validation](Screenshots/Match%20Validation.png)
+
+**Color-coded PDF report output:**
+
+*Report pages 1–2 — CBC and Metabolic panels with color-coded status and findings:*
+
+![Output Page 1](Screenshots/Output_1.png)
+
+*Report pages 3+ — Lipids, HbA1c, TSH, DHEA-S, CRP panels:*
+
+![Output Page 2](Screenshots/Output%202.png)
+
 ---
 
 ## Setup and Usage

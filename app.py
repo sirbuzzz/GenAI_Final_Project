@@ -189,7 +189,7 @@ def validate_matches(mapping: dict, ref_dict: dict) -> dict:
 
     message = get_client().messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=2048,
+        max_tokens=4096,
         system="""You are a clinical lab quality control specialist.
 Review biomarker name matches between a lab document and a reference sheet.
 For each match, assess whether it is correct.
