@@ -121,7 +121,7 @@ Run with `python3 eval_matching.py test_cases/<name>.pdf`:
 
 | Case | Extracted | Confident | Uncertain | Wrong | Unmatched | Sex Detected |
 |---|---|---|---|---|---|---|
-| normal_1 | 38 | 34 (89%) | 4 | 0 | 0 | Male ✓ |
+| normal_1 | 38 | 29 (76%) | 9 | 0 | 0 | Male ✓ |
 | normal_2 | 37 | 29 (78%) | 8 | 0 | 0 | Female ✓ |
 | edge_1 | 30 | 25 (83%) | 5 | 0 | 0 | Male ✓ |
 | edge_2 | 27 | 23 (85%) | 4 | 0 | 0 | Female ✓ |
@@ -149,12 +149,15 @@ All gender-specific biomarkers were classified using the correct range for the d
 
 ### Recurring uncertain flags
 
-The same 4 patterns appear as uncertain across nearly all cases — all are legitimate data quality issues in the reference Excel, not model errors:
+The same patterns appear as uncertain across nearly all cases — all are legitimate data quality issues in the reference Excel or genuine methodological ambiguities, not model errors:
 
+- **Neutrophils/Lymphs/Monocytes/Eos/Baso (Absolute) → reference names** — the reference sheet does not clarify absolute count vs. percentage differential, so the judge flags these as ambiguous
 - **Creatinine → CREATINE** — typo in the reference sheet (creatinine ≠ creatine)
 - **Lymphs (Absolute) → LYMPHOHICYTES** — misspelling of LYMPHOCYTES in reference sheet
 - **LDL Chol Calc (NIH) → LDL DIRECT** — calculated vs. directly measured LDL are methodologically different
 - **Insulin → INSULIN, FASTING** — fasting status not specified in the PDF label
+
+The confident/uncertain split on borderline cases varies slightly across runs due to LLM stochasticity. Zero wrong matches and zero unmatched are consistent across all runs.
 
 In `judge_3`, "Serum Creatinine → CREATINE" was correctly escalated from uncertain to **wrong** because the explicit word "Creatinine" in the PDF name made the reference sheet typo undeniable. This demonstrates the judge working as intended.
 

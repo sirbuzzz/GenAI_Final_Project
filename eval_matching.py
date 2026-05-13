@@ -88,7 +88,9 @@ def match_biomarkers(pdf_names: list[str], ref_names: list[str]) -> dict:
     msg = CLIENT.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=2048,
-        system="""You are a clinical lab data specialist. Match biomarker names from a lab document to names in a reference Excel sheet.
+        system="""You are a clinical lab data specialist helping a functional medicine health coach.
+Match biomarker names from a lab document to names in the coach's reference Excel sheet.
+
 Common naming differences:
 - Abbreviations: "AST (SGOT)" → "AST", "ALT (SGPT)" → "ALT"
 - Short forms: "Hemoglobin" → "HGB", "Hematocrit" → "HCT", "Platelets" → "PLT"
@@ -96,7 +98,12 @@ Common naming differences:
 - Alternate names: "Carbon Dioxide, Total" → "CO2/BICARBONATE/CARBON DIOXIDE"
 - Insulin: "Insulin" → "INSULIN, FASTING"
 - CRP: "C-Reactive Protein, Quant" → "CRP"
-Match on biological meaning. Only use exact reference names. Return ONLY a JSON object.""",
+
+Rules:
+- Match on biological meaning, not string similarity
+- Only use exact reference names from the provided list
+- Skip any PDF name with no confident match
+- Return ONLY a JSON object""",
         messages=[{"role": "user", "content": f"""Match each lab document biomarker to the correct reference sheet name.
 
 Lab document biomarkers:
@@ -126,10 +133,13 @@ def validate_matches(mapping: dict, ref_dict: dict) -> dict:
         max_tokens=2048,
         system="""You are a clinical lab quality control specialist.
 Review biomarker name matches between a lab document and a reference sheet.
+For each match, assess whether it is correct.
+
 Confidence levels:
 - "confident": clearly the same biomarker, name difference is just formatting/abbreviation
-- "uncertain": possibly the same but there is ambiguity
+- "uncertain": possibly the same but there is ambiguity (different test methods, similar but not identical)
 - "wrong": clearly different biomarkers
+
 Return ONLY a JSON object.""",
         messages=[{"role": "user", "content": f"""Validate these biomarker matches:
 
