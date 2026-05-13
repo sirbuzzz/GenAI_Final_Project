@@ -147,6 +147,18 @@ All gender-specific biomarkers were classified using the correct range for the d
 | edge_3 (M) | HGB | 9.5 | Male 14.0–15.0 | Out of Range ✓ |
 | judge_1 (F) | HGB | 13.5 | Female 13.5–14.5 | In Range ✓ |
 
+### Directional findings validation
+
+For every confident, out-of-range match the eval verifies that `get_findings()` returns the correct directional text — `high_findings` when the value exceeds the upper bound, `low_findings` when it falls below the lower bound.
+
+| Result | Meaning |
+|---|---|
+| OK | Findings text matches the direction of deviation |
+| EMPTY | No findings text entered in the reference sheet for that biomarker |
+| MISMATCH | Wrong direction of findings text returned |
+
+Zero mismatches across all 8 test cases. EMPTY results reflect gaps in the reference Excel (biomarkers with no `high_findings` or `low_findings` text entered), not logic errors.
+
 ### Recurring uncertain flags
 
 The same patterns appear as uncertain across nearly all cases — all are legitimate data quality issues in the reference Excel or genuine methodological ambiguities, not model errors:

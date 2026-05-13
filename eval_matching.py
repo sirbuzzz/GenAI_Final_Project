@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent / ".env", override=True)
 
 sys.path.insert(0, str(Path(__file__).parent / ".agents" / "skills" / "lab-report-analyzer" / "scripts"))
-from analyze_labs import load_reference_excel, determine_status, _get_optimal_bounds
+from analyze_labs import load_reference_excel, determine_status, _get_optimal_bounds, get_findings, STATUS_GREEN
 
 import anthropic
 
@@ -292,6 +292,66 @@ def run_eval(doc_path: str):
 
     if not gender_found:
         print("  No gender-specific biomarkers found in confident matches.")
+    print()
+
+    # Directional findings check
+    print(f"{divider}")
+    print(f"\nDIRECTIONAL FINDINGS CHECK  (findings text matches direction of deviation)")
+    print(f"{'BIOMARKER':<30} {'VALUE':<10} {'DIRECTION':<8} {'RESULT'}")
+    print(f"{'─'*70}")
+
+    findings_ok = 0
+    findings_empty = 0
+    findings_mismatch = 0
+
+    for pdf_name, v in confident.items():
+        ref_name = v["ref_name"]
+        ref = reference.get(ref_name)
+        if not ref:
+            continue
+        bm = all_bms.get(pdf_name)
+        if not bm:
+            continue
+
+        status = determine_status(bm, ref, sex)
+        if status == STATUS_GREEN:
+            continue
+
+        opt_low, opt_high = _get_optimal_bounds(ref, sex)
+        value = bm["value"]
+
+        if opt_high is not None and value > opt_high:
+            direction = "HIGH"
+            expected = ref.get("high_findings", "")
+        elif opt_low is not None and value < opt_low:
+            direction = "LOW"
+            expected = ref.get("low_findings", "")
+        else:
+            continue
+
+        actual = get_findings(bm, ref, status, sex)
+
+        if not actual:
+            result = "EMPTY — no findings text in reference"
+            findings_empty += 1
+        elif actual == expected:
+            result = "OK"
+            findings_ok += 1
+        else:
+            result = "MISMATCH — wrong direction returned"
+            findings_mismatch += 1
+
+        print(f"  {pdf_name:<28} {str(value):<10} {direction:<8} {result}")
+
+    out_of_range_total = findings_ok + findings_empty + findings_mismatch
+    if out_of_range_total == 0:
+        print("  No out-of-range biomarkers in confident matches.")
+    else:
+        print(f"\n  Direction correct : {findings_ok}/{out_of_range_total}")
+        if findings_empty:
+            print(f"  Empty findings    : {findings_empty}  (reference sheet missing text for these)")
+        if findings_mismatch:
+            print(f"  Mismatches        : {findings_mismatch}  (wrong direction returned)")
     print()
 
 
