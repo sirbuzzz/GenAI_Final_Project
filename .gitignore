@@ -1,0 +1,28 @@
+# API keys and environment
+.env
+
+# Real patient data — never commit
+Manuel_Sotero_Labs_Redacted.pdf
+*.pdf.bak
+
+# Generated output reports
+Outputs/
+lab_report_analysis*.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# macOS
+.DS_Store
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
