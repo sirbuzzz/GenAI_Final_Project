@@ -15,7 +15,7 @@ Arguments:
     output_pdf    Path for the generated output PDF report
 
 Dependencies:
-    pip install pdfplumber openpyxl reportlab
+    pip install openpyxl reportlab
 """
 
 import sys
@@ -23,7 +23,6 @@ import json
 import re
 from pathlib import Path
 
-import pdfplumber
 import openpyxl
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
