@@ -286,6 +286,7 @@ Final_Project_JHU/
 ├── eval_matching.py              # Matching + gender eval script
 ├── create_test_documents.py      # Generates all 24 test documents
 ├── requirements.txt
+├── README.md
 ├── test_cases/                   # 24 test documents (8 cases × 3 formats)
 ├── .agents/
 │   └── skills/
