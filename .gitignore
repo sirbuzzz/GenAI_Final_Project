@@ -21,6 +21,8 @@ __pycache__/
 
 # Local only — not for repo
 Assignment_Instructions.md
+Presentation*.pptx
+~$*.pptx
 
 # Excel temp files
 ~$*.xlsx
