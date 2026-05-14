@@ -8,13 +8,12 @@ A Streamlit app that reads patient lab reports (PDF, Word, or Excel), extracts b
 
 **User:** A functional medicine health coach who reviews patient lab results as part of a health coaching workflow.
 
-**Workflow being improved:** After a patient receives lab results (typically a Labcorp or Quest PDF), the coach manually reviews each biomarker and compares it against their own optimal reference ranges — which differ from the standard clinical ranges printed on the lab report. This involves opening the PDF, scanning each value, looking it up in a separate Excel sheet, and writing notes for the patient.
+**Workflow being improved:** After a patient receives lab results (typically a Labcorp or Quest PDF), the coach manually transcribes every biomarker name and value one by one into a separate Excel sheet, then looks up each one against their reference sheet to determine the status, and finally writes notes for the patient. With dozens of biomarkers per patient, this is a significant manual effort repeated for every client every session.
 
 **Why this is hard:**
 - Lab reports use vendor-specific naming conventions. The coach's reference sheet uses different names. "AST (SGOT)" on a Labcorp PDF is just "AST" in the reference; "Carbon Dioxide, Total" maps to "CO2/BICARBONATE/CARBON DIOXIDE." Manual mapping is tedious and error-prone.
 - Standard clinical reference ranges and functional medicine optimal ranges are different. A glucose of 95 mg/dL is "normal" by Labcorp standards but above the coach's optimal range of 75–86. The coach needs comparison against *their* ranges, not the lab's.
-- Several biomarkers (RBC, HGB, HCT, DHEA-S, Ferritin, ESR, Uric Acid, SHBG) have different optimal ranges for men and women. Using the wrong range misclassifies otherwise healthy values.
-- Lab PDFs are often vector-path or image-based — standard text extraction libraries like pdfplumber fail on them silently, returning empty or garbled output.
+- Several biomarkers (RBC, HGB, HCT, DHEA-S, Ferritin, ESR, Uric Acid, SHBG) have different optimal ranges for men and women. The coach has to manually check the patient's sex, find the correct range in the reference sheet, and apply it for each applicable biomarker — a step that's easy to get wrong when working through dozens of values by hand.
 
 **Why GenAI is useful here:**
 - Claude Vision can read any PDF format visually, the same way a human reads it, without depending on the PDF's text layer. It also reads patient demographics (sex, DOB) from the same document in one pass.
@@ -85,20 +84,24 @@ The baseline is the coach's current manual workflow:
 4. Write in the status for each biomarker across all panels (CBC, Metabolic, Lipid, etc.)
 5. Recall or look up what out-of-range values mean and write notes for the patient
 
-This process is time-consuming (dozens of biomarkers per patient), error-prone (manual transcription and comparison), inconsistent across sessions, and doesn't scale as the client base grows. It also requires the coach to mentally apply the correct gender-specific range for each applicable biomarker.
+This process is time-consuming (dozens of biomarkers per patient), error-prone (manual transcription and comparison), inconsistent across sessions, and doesn't scale as the client base grows. It also requires the coach to manually look up and apply the correct gender-specific range for each applicable biomarker.
 
 This app replaces the entire workflow with a single file upload. The coach gets a color-coded PDF report and a plain-English summary in seconds.
 
 | | Manual baseline | This app |
 |---|---|---|
 | Biomarker extraction | Manual transcription | Claude Vision — any PDF format |
-| Name matching | Coach looks up each name by memory | Claude semantic matching |
+| Name matching | Coach manually maps each name to reference sheet | Claude semantic matching |
 | Range comparison | Manual lookup against reference sheet | Automated against optimal ranges |
-| Gender-specific ranges | Coach applies from memory | Detected from document, applied automatically |
+| Gender-specific ranges | Coach manually looks up and applies correct range | Detected from document, applied automatically |
 | Bad match detection | None | LLM-as-judge confidence scoring |
 | Coach summary | Coach writes notes by hand | Generated automatically |
 
 A simple code alternative (pdfplumber + keyword matching) was also tested and returned zero biomarkers on a real Labcorp PDF — the PDF uses vector paths rather than a text layer, which text parsers cannot read. Claude Vision extracted all 47 biomarkers from the same file.
+
+### What counted as good output
+
+Good output was defined as: zero wrong matches reaching the report, correct patient sex detection from the document header, correct gender-specific range applied for each applicable biomarker, and confident matches representing the majority of extracted biomarkers. Uncertain matches surfaced for manual review were acceptable — silently including or silently dropping them was not.
 
 ### Test cases
 
